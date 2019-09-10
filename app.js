@@ -3,6 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose');
+// Require dotenv
+require('dotenv').config();
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -11,6 +14,7 @@ var profilesRouter = require('./routes/profiles');
 var articlesRouter = require('./routes/articles');
 
 var app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -21,6 +25,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+// Connect mongoose
+mongoose.connect(process.env.MONGOURL, {useNewUrlParser: true }, (err) => {
+    err ? console.log(err) : console.log('success mongodb connected');
+})
 
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
