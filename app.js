@@ -4,8 +4,16 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
+
 // Require dotenv
 require('dotenv').config();
+
+// Connect mongoose
+mongoose.connect('mongodb://localhost/conduit_api' || process.env.MONGOURL, {useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
+    err ? console.log(err) : console.log('success mongodb connected');
+});
+
+mongoose.set('useCreateIndex', true);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -27,10 +35,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// Connect mongoose
-mongoose.connect(process.env.MONGOURL, {useNewUrlParser: true }, (err) => {
-    err ? console.log(err) : console.log('success mongodb connected');
-})
 
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
