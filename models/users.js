@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const bcrypt = require('bcrypt');
 
 const Schema = mongoose.Schema;
 
@@ -7,7 +7,7 @@ const Schema = mongoose.Schema;
 const usersSchema = Schema({
     username: {type: String, unique: true, required: true},
     email: {type: String, unique: true, required: true},
-    password: {String, required: true},
+    password: {type: String, required: true},
     bio: String,
     image: String,
     // TODO:
@@ -15,6 +15,22 @@ const usersSchema = Schema({
     following: Number,
     favorites: Array
 }, {timestamps: true});
+
+// Hash the password
+usersSchema.pre('save', function(next) {
+    this.password = bcrypt.hashSync(this.password, 10);
+    next();
+});
+
+
+/**
+ * Verifies the passwords
+ * @param {string}
+ * @returns {Boolean} 
+ */ 
+usersSchema.methods.verifyPassword = function(password) {
+    return bcrypt.compareSync(password, this.password);
+};
 
 // Create Users model instance
 const Users = mongoose.model('Users', usersSchema);
