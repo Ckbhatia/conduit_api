@@ -17,7 +17,8 @@ exports.genToken = userId => {
  * @returns {object}
  */
 exports.verToken = (req, res, next) => {
-    let token = req.headers.Authorization || '';
+    //Note: First character is lower case for some error reasons, authorization.
+    let token = req.headers.authorization || '';
     if (token) {
     jwt.verify(token, process.env.JWT_SECRET_KEY, (err,user) => {
         if(err) return res.status(401).json({message:'invalid token'});
