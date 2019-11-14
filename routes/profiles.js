@@ -50,12 +50,29 @@ router.post("/:username/follow", async (req, res) => {
 });
 
 // Delete username follow
-router.delete("/:username/follow", (req, res, next) => {
-  // TODO
-  // Unfollow user
-  // Authentication required, returns a Profile
-  // No additional parameters required
-  res.send("Author has been unfollowed");
+router.delete("/:username/follow", async (req, res) => {
+  try {
+    const username = req.params.username;
+    // Current log in user
+    const currentUser = req.user.username;
+    const user = await Users.findOne({ username }).select("_id");
+    if (!user) return res.json({ message: "User does't exist" });
+    // Update follower user
+    const updateUser = await Users.findOneAndUpdate(
+      { username: currentUser },
+      { $pull: { followers: user.id } },
+      { safe: true, upsert: true, new: true }
+    );
+    // Update current user ( Log in ) with pushing following user
+    const updateCurrentUser = await Users.findOneAndUpdate(
+      { username },
+      { $pull: { following: user.id } },
+      { safe: true, upsert: true, new: true }
+    ).select("-_id, -password");
+    res.status(200).json({ profile: updateCurrentUser });
+  } catch (error) {
+    res.json({ message: "There's an error", error });
+  }
 });
 
 // Export the router
