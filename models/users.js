@@ -12,8 +12,10 @@ const usersSchema = Schema({
     image: String,
     // TODO:
     // Update the favorites and following
-    following: Number,
-    favorites: Array
+    // In testing not to commit these changes
+    following: [{ type: Schema.Types.ObjectId, ref: "Users" }],
+    followers: [{ type: Schema.Types.ObjectId, ref: "Users" }],
+    favorites: [{ type: Schema.Types.ObjectId, ref: "Articles" }],
 }, {timestamps: true});
 
 // Hash the password
