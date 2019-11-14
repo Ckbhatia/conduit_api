@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
  * @param {string}
  * @returns {string}
  */
-exports.genToken = userId => {
-    return jwt.sign({userId}, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+exports.genToken = user => {
+    return jwt.sign({userId: user.id, username: user.username}, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
 };
 
 /**
@@ -23,6 +23,7 @@ exports.verToken = (req, res, next) => {
     jwt.verify(token, process.env.JWT_SECRET_KEY, (err,user) => {
         if(err) return res.status(401).json({message:'invalid token'});
         req.userId = user.userId;
+        req.username = user.username;
         next();
     });
     }
