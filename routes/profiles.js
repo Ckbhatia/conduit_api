@@ -23,12 +23,30 @@ router.get("/:username", (req, res) => {
 // Check authorization first
 router.use(Auth.verToken);
 
-// Get username follow
-router.get("/:username/follow", (req, res) => {
-  // TODO
-  // Follow user
-  // Authentication required, returns a Profile
-  // No additional parameters required
+// Post username follow
+router.post("/:username/follow", async (req, res) => {
+  try {
+    const username = req.params.username;
+    // Current log in user
+    const currentUser = req.user.username;
+    const user = await Users.findOne({ username }).select("_id");
+    if (!user) return res.json({ message: "User does't exist" });
+    // Update follower user
+    const updateUser = await Users.findOneAndUpdate(
+      { username: currentUser },
+      { $push: { followers: user.id } },
+      { safe: true, upsert: true, new: true }
+    );
+    // Update current user ( Log in ) with pushing following user
+    const updateCurrentUser = await Users.findOneAndUpdate(
+      { username },
+      { $push: { following: user.id } },
+      { safe: true, upsert: true, new: true }
+    ).select("-_id, -password");
+    res.status(200).json({ profile: updateCurrentUser });
+  } catch (error) {
+    res.json({ message: "There's an error", error });
+  }
 });
 
 // Delete username follow
